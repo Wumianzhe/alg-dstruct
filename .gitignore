@@ -1,0 +1,7 @@
+*.log
+tmp/
+
+build/
+README.org
+magit.org
+src/lab*
