@@ -2,6 +2,11 @@
 tmp/
 
 build/
+bin/
+
+# notes and readme before conversion to markdown
 README.org
 magit.org
+
+# symlinks to executables
 src/lab*

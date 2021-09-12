@@ -4,16 +4,24 @@
 # @file
 # @version 0.1
 
-.PHONY: all clean debug release
+.PHONY: all clean debug release test
 all: debug release
 
 PROJECT_DIR = ~/Documents/C/Uni/Sem3/alg-dstruct
 BUILD_DIR = $(PROJECT_DIR)/build
 SOURCE_DIR = $(PROJECT_DIR)/src
-EXEC_NAME = lab
+TESTS_DIR = $(PROJECT_DIR)/tests
+BIN_DIR = $(PROJECT_DIR)/bin
+
 # basically a glob
 SRCS := $(notdir $(wildcard $(SOURCE_DIR)/*.c))
+TESTS := $(notdir $(wildcard $(TESTS_DIR)/*.c))
+
+# multiple sets of object files
 OBJS := $(patsubst %.c, %.o, $(SRCS))
+DEBUG_OBJS := $(addprefix $(BUILD_DIR)/Debug/, $(OBJS))
+RELEASE_OBJS := $(addprefix $(BUILD_DIR)/Release/, $(OBJS))
+TESTBINS := $(addprefix $(BIN_DIR)/tests/, $(basename $(TESTS)))
 
 # compile with clang
 CC = clang
@@ -22,20 +30,32 @@ CFLAGS =
 CFLAGS_DEBUG = -Og
 CGLAGS_RELEASE = -O2 -DNDEBUG -march=native
 
-# i should have inserted comments when writing this 4 months ago. Works on my laptop though
-# most of "magic" is turning INCLUDE_DIRS into list of include flags and cleaning up
-# TODO add directory dependencies
-debug: $(addprefix $(BUILD_DIR)/Debug/, $(OBJS))
-	$(CC) $^ $(LFLAGS) -o $(BUILD_DIR)/Debug/$(EXEC_NAME)
+debug: $(DEBUG_OBJS) | $(BIN_DIR)
+	$(CC) $^ $(LFLAGS) -o $(BIN_DIR)/lab
 
-$(BUILD_DIR)/Debug/%.o: $(SOURCE_DIR)/%.c
+$(BUILD_DIR)/Debug/%.o: $(SOURCE_DIR)/%.c | $(BUILD_DIR)/Debug
 	$(CC) -c $(CFLAGS) $(CFLAGS_DEBUG) $< -o $@ $(addprefix -I , $(INCLUDE_DIRS))
 
-release: $(addprefix $(BUILD_DIR)/Release/, $(OBJS))
-	$(CC) $^ $(LFLAGS) -o $(BUILD_DIR)/Release/$(EXEC_NAME)
+release: $(RELEASE_OBJS) | $(BIN_DIR)
+	$(CC) $^ $(LFLAGS) -o $(BIN_DIR)/lab-release
 
-$(BUILD_DIR)/Release/%.o: $(SOURCE_DIR)/%.c
+$(BUILD_DIR)/Release/%.o: $(SOURCE_DIR)/%.c | $(BUILD_DIR)/Release
 	$(CC) -c $(CFLAGS) $(CFLAGS_RELEASE) $< -o $@ $(addprefix -I , $(INCLUDE_DIRS))
+
+test: debug $(TESTBINS)
+	for test in $(TESTBINS) ; do $$test ; done
+
+$(BIN_DIR)/tests/%: $(TESTS_DIR)/%.c | $(BIN_DIR)/tests
+	$(CC) $(CFLAGS) $< $(filter-out $(BUILD_DIR)/Debug/main.o, $(DEBUG_OBJS)) -o $@
+
+$(BIN_DIR):
+	mkdir -p $@
+$(BIN_DIR)/tests:
+	mkdir -p $@
+$(BUILD_DIR)/Debug:
+	mkdir -p $@
+$(BUILD_DIR)/Release:
+	mkdir -p $@
 
 clean:
 	$(RM) $(addprefix $(BUILD_DIR)/Debug/, *.o $(EXEC_NAME)) $(addprefix $(BUILD_DIR)/Release/, *.o $(EXEC_NAME))
