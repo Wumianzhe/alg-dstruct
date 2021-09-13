@@ -1,12 +1,11 @@
 *.log
+*.cache*
 tmp/
 
 build/
 bin/
 
-# notes and readme before conversion to markdown
-README.org
-magit.org
+# compile commands and symlinks of them
+*compile_commands.json
 
-# symlinks to executables
-src/lab*
+magit.org
