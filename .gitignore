@@ -1,5 +1,6 @@
 *.log
 tmp/
+*.cache
 
 build/
 bin/
@@ -9,4 +10,3 @@ README.org
 magit.org
 
 # symlinks to executables
-src/lab*
