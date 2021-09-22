@@ -4,9 +4,9 @@
 
 /* list.h functions
  * [+] listCreate
- * [?] listDestroy
+ * [+] listDestroy
  * [+] nodeCreate
- * [?] nodeFree
+ * [+] nodeFree
  * [+] insertAfter
  * [+] insertHead
  * [+] sortedInsert
@@ -40,12 +40,14 @@ Test(list, creation) {
     cr_expect_eq(list->size,0);
     cr_expect_null(list->pHead);
     listDestroy(list);
-    // don't know how to test if memory is freed
+    //based on valgrind should be fine
 }
 
 Test(list, node_creation) {
-    void* data=malloc(4);
+    //pseudo adress
+    void* data=(void*)1;
     node_t* node=nodeCreate(data);
+    cr_assert_not_null(node);
     cr_assert_eq(node->data,data);
     cr_assert_null(node->pNext);
     nodeFree(node);
@@ -77,15 +79,15 @@ Test(list, sorting_insert, .init=sortSetup) {
     sortedInsert(&list,&nodes[1],intcmp);
     sortedInsert(&list,&nodes[0],intcmp);
     cr_assert_eq(list.size,3);
-    cr_expect(*(int*)list.pHead->data <= *(int*)list.pHead->pNext->data);
-    cr_expect(*(int*)list.pHead->pNext->data <= *(int*)list.pHead->pNext->pNext->data);
+    cr_expect_leq(*(int*)list.pHead->data,*(int*)list.pHead->pNext->data);
+    cr_expect_leq(*(int*)list.pHead->pNext->data,*(int*)list.pHead->pNext->pNext->data);
 }
 
 Test(list, sort_empty, .init=sortSetup) {
     // empty list
     sortList(&list,intcmp);
-    cr_expect(list.size==0);
-    cr_expect(list.pHead==NULL);
+    cr_expect_eq(list.size,0);
+    cr_expect_null(list.pHead);
 }
 
 Test(list, sort_nonempty, .init=sortSetup) {
@@ -96,9 +98,10 @@ Test(list, sort_nonempty, .init=sortSetup) {
     list.size=3;
     sortList(&list,intcmp);
     cr_assert_eq(list.size,3);
-    cr_expect(*(int*)list.pHead->data <= *(int*)list.pHead->pNext->data);
-    cr_expect(*(int*)list.pHead->pNext->data <= *(int*)list.pHead->pNext->pNext->data);
-
+    cr_expect_leq(*(int*)list.pHead->data,*(int*)list.pHead->pNext->data);
+    cr_expect_leq(*(int*)list.pHead->pNext->data,*(int*)list.pHead->pNext->pNext->data);
+}
+Test(list, sort_sorted, .init=sortSetup) {
     //sorted list
     list.pHead=&nodes[0];
     nodes[0].pNext=&nodes[1];
@@ -107,6 +110,6 @@ Test(list, sort_nonempty, .init=sortSetup) {
     list.size=3;
     sortList(&list,intcmp);
     cr_assert_eq(list.size,3);
-    cr_expect(*(int*)list.pHead->data <= *(int*)list.pHead->pNext->data);
-    cr_expect(*(int*)list.pHead->pNext->data <= *(int*)list.pHead->pNext->pNext->data);
+    cr_expect_leq(*(int*)list.pHead->data,*(int*)list.pHead->pNext->data);
+    cr_expect_leq(*(int*)list.pHead->pNext->data,*(int*)list.pHead->pNext->pNext->data);
 }
