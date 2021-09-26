@@ -18,7 +18,7 @@ void sortSetup(void) {
 
 Test(strlist, sort_empty, .init=sortSetup) {
 	// empty list
-	sortstrList(&list);
+	sortStrList(&list);
 	cr_expect(list.size==0);
 	cr_expect(list.pHead==NULL);
 }
@@ -29,7 +29,7 @@ Test(strlist, sort_nonempty, .init=sortSetup) {
 	list.pHead->pNext=&nodes[1];
 	nodes[1].pNext=&nodes[2];
 	list.size=3;
-	sortstrList(&list);
+	sortStrList(&list);
 	cr_assert_eq(list.size,3);
 	cr_expect_str_leq(list.pHead->data,list.pHead->pNext->data);
 	cr_expect_str_leq(list.pHead->pNext->data,list.pHead->pNext->pNext->data);
@@ -42,7 +42,7 @@ Test(strlist, sort_sorted, .init=sortSetup) {
 	nodes[0].pNext=&nodes[1];
 	nodes[1].pNext=NULL;
 	list.size=3;
-	sortstrList(&list);
+	sortStrList(&list);
 	cr_assert_eq(list.size,3);
 	cr_expect_str_leq(list.pHead->data,list.pHead->pNext->data);
 	cr_expect_str_leq(list.pHead->pNext->data,list.pHead->pNext->pNext->data);

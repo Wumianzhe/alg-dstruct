@@ -35,7 +35,7 @@ void sortSetup(void) {
 }
 
 Test(list, creation) {
-    list_t* list = listCreate();
+    list_t* list=listCreate();
     cr_assert_not_null(list);
     cr_expect_eq(list->size,0);
     cr_expect_null(list->pHead);

@@ -3,6 +3,6 @@
 
 #include "list.h"
 
-void sortstrList(list_t* list);
+void sortStrList(list_t* list);
 
 #endif
