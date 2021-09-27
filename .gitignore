@@ -1,12 +1,11 @@
 *.log
 tmp/
+
 *.cache
+*compile_commands.json
 
 build/
-bin/
 
 # notes and readme before conversion to markdown
-README.org
+*README.org
 magit.org
-
-# symlinks to executables

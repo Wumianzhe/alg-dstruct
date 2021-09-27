@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<Description>
+  <!-- fits on my screen -->
+  <LineLength>181</LineLength>
+  <!-- something more sane than 180 -->
+  <!-- <LineLength>121</LineLength> -->
+  <Typedefs>
+    <!-- lowerCamelCase_t -->
+    <regex>[a-z]+([A-Z0-9][a-z]*)+_t</regex>
+  </Typedefs>
+  <Struct>
+    <!-- lowerCamelCase -->
+    <regex>[a-z]+([A-Z0-9][a-z]*)+</regex>
+  </Struct>
+  <SemicolonSpace>0</SemicolonSpace>
+  <EndOfFileNewLine>1</EndOfFileNewLine>
+  <Tabs>1</Tabs>
+  <Spaces>0</Spaces>
+  <!-- Multiline? comments pattern -->
+  <Comments>
+    <begin>/**</begin>
+    <middle> *</middle>
+    <end>*/</end>
+    <emptyLineBeforeClass>true</emptyLineBeforeClass>
+  </Comments>
+  <!-- Don't want to check headers for now
+       <Header>
+       <location>/Web/headers/IGSTKSandbox</location>
+       <checkSpacesEndOfLine>false</checkSpacesEndOfLine>
+       <cvsFormat>true</cvsFormat>
+       </Header>
+  -->
+  <Indent>
+    <type>SPACE</type>
+    <size>4</size>
+    <noHeader>true</noHeader>
+    <allowBlockLine>true</allowBlockLine>
+  </Indent>
+  <EmptyLines>2</EmptyLines>
+  <Operator>
+    <spaceBefore>1</spaceBefore>
+    <spaceAfter>1</spaceAfter>
+  </Operator>
+</Description>
+

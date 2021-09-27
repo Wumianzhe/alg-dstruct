@@ -1,0 +1,12 @@
+root = true
+
+# Unix-style newlines, utf-8 encoding, final newlines and no whitespace before line breaks
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.c]
+indent_style = space
+indent_size = 4
