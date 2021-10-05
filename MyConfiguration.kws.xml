@@ -12,6 +12,10 @@
     <!-- lowerCamelCase -->
     <regex>[a-z]+([A-Z0-9][a-z]*)+</regex>
   </Struct>
+  <Functions>
+    <!-- lowerCamelCase -->
+    <regex>[a-z]+([A-Z0-9][a-z]*)+</regex>
+  </Functions>
   <SemicolonSpace>0</SemicolonSpace>
   <EndOfFileNewLine>1</EndOfFileNewLine>
   <Tabs>1</Tabs>
