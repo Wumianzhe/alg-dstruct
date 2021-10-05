@@ -3,7 +3,6 @@ tmp/
 
 *.cache
 *compile_commands.json
-*CMakeLists.txt
 
 build/
 
