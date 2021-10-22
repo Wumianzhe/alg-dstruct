@@ -22,12 +22,10 @@ void* findPosition(int size) {
     }
     // remember old value of cur
     void* begin = cur;
-    // pointers are slow
     void* next = *blockNext(cur);
     // go for one cycle
     while (next != begin) {
         if (*blockSize(next) >= size) {
-            // pointer to empty space that can fit requested size at end of pointed location
             return next;
         }
         next = *blockNext(next);
