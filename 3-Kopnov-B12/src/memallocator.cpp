@@ -1,4 +1,5 @@
 #include "memallocator.h"
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,8 +29,8 @@ void* findPosition(int size) {
         if (*blockSize(next) >= size) {
             return next;
         }
-        next = *blockNext(next);
         cur = next;
+        next = *blockNext(next);
     }
     // check old cur
     if (*blockSize(begin) >= size) {
@@ -50,6 +51,10 @@ void merge(void* ptr) {
     *blockNext(ptr) = *blockNext(next);
     // change memory on right side
     *rightSize(ptr) = *blockSize(ptr);
+    // cleanup
+    *blockSize(next) = 0;
+    *prevSize(next) = 0;
+    *blockNext(next) = NULL;
 }
 
 void* memalloc(int size) {
@@ -77,9 +82,9 @@ void* memalloc(int size) {
     // reduce remaining memory
     *blockSize(tmp) = *blockSize(tmp) - size;
     if (ptr != tmp) {
-        *prevSize(ptr) = *blockSize(tmp);
+        *rightSize(tmp) = *blockSize(tmp);
     } else {
-        *blockNext(cur) = *blockNext(ptr);
+        *blockNext(cur) = *blockNext(tmp);
     }
     *blockSize(ptr) = size;
     *blockNext(ptr) = NULL;
@@ -89,6 +94,16 @@ void* memalloc(int size) {
 }
 
 void memfree(void* ptr) {
+    if (!ptr) {
+        errno = 14; // BAD_ADRESS
+        fprintf(stderr, "trying to free nullptr\n");
+        return;
+    }
+    if (*blockNext(ptr) != NULL) {
+        errno = 14;
+        fprintf(stderr, "double free\n");
+        return;
+    }
     void* node;
     // if previous block is free
     if (*prevSize(ptr) > 0) {
@@ -96,6 +111,9 @@ void memfree(void* ptr) {
         // merge
         *blockSize(node) += *blockSize(ptr);
         *rightSize(node) = *blockSize(node);
+        // cleanup
+        *blockSize(ptr) = 0;
+        *prevSize(ptr) = 0;
         // try merging with next
         if (*blockNext(node) == (char*)node + *blockSize(node)) {
             merge(node);
@@ -103,14 +121,25 @@ void memfree(void* ptr) {
     } else {
         // next node
         node = (char*)ptr + *blockSize(ptr);
-        // allocated nodes have NULL as pNext
+        // finding location to insert
+        void* prev = poolMemory + BLOCK_SIZE - sizeof(int);
+        // allocated nodes have NULL as next pointer
         if ((node < poolMemory + poolSize) && *blockNext(node)) {
+            while (*blockNext(prev) != node) {
+                prev = *blockNext(prev);
+            }
             *blockNext(ptr) = node;
             merge(ptr);
+        } else {
+            // trying to maintain pointers in one direction so this works (and avoids infinite loops)
+            while (*blockNext(prev) < node && *blockNext(prev) != (poolMemory + BLOCK_SIZE - 4)) {
+                prev = *blockNext(prev);
+            }
+            *rightSize(ptr) = *blockSize(ptr);
+            *blockNext(ptr) = *blockNext(prev);
         }
-        // insert into list (somewhere)
-        *blockNext(ptr) = *blockNext(cur);
-        *blockNext(cur) = ptr;
+        // insert into list
+        *blockNext(prev) = ptr;
     }
 }
 
@@ -120,6 +149,7 @@ int meminit(void* pMemory, int size) {
     }
     poolMemory = (char*)pMemory;
     poolSize = size;
+    memset(poolMemory, 0, poolSize);
 
     cur = poolMemory + BLOCK_SIZE - sizeof(int);
     // cyclic list
@@ -129,13 +159,13 @@ int meminit(void* pMemory, int size) {
 }
 
 void memdone() {
-    char* iter = poolMemory;
-    if (*(int*)iter == poolSize)
+    char* iter = poolMemory + 12;
+    if (*blockSize(iter) == poolSize)
         return;
     while (iter < poolMemory + poolSize) {
-        if (*(void**)(iter + sizeof(int)) == 0) {
-            fprintf(stderr, "MEMORY LEAKED: %d bytes at %p\n", *(int*)iter - 16, iter + 12);
+        if (*blockNext(iter) == 0) {
+            fprintf(stderr, "MEMORY LEAKED: %d bytes at %p\n", *blockSize(iter), iter);
         }
-        iter += *(int*)iter;
+        iter += *blockSize(iter);
     }
 }
