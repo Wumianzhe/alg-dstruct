@@ -11,7 +11,7 @@
 
 // huge static buffer so memory adress stays consistent between runs with same seed
 // helps greatly with watchpoints
-char buf[1024 * 1024];
+char buf[1000000];
 
 int main(int argc, char* argv[]) {
     int seed;
@@ -24,19 +24,30 @@ int main(int argc, char* argv[]) {
     }
     srand(seed);
     void* arr[ARR_SIZE];
-    meminit(buf, 1024 * 1024);
+    char* ones[BLOCK_MAX];
+    int sizes[ARR_SIZE];
+    memset(ones, '1', BLOCK_MAX * sizeof(ones[0]));
+    meminit(buf, 1000000);
     for (int r = 0; r < RUN_COUNT; r++) {
         for (int i = 0; i < ARR_SIZE; i++) {
-            arr[i] = memalloc(1 + rand() % BLOCK_MAX);
+            int size = 1 + rand() % BLOCK_MAX;
+            arr[i] = memalloc(size);
+            sizes[i] = size;
+            memset(arr[i], '1', size);
         }
         for (int i = 0; i < ARR_SIZE; i++) {
             int index = rand() % (ARR_SIZE - i);
+            if (memcmp(arr[index], ones, sizes[index])) {
+                printf("memory contents changed\n");
+                errno = 33;
+            }
             memfree(arr[index]);
             if (errno) {
                 errno = 0;
                 printf("run: %d, iteration: %d\n", r, i);
             }
             arr[index] = arr[ARR_SIZE - 1 - i];
+            sizes[index] = sizes[ARR_SIZE - 1 - i];
         }
     }
     memdone();
