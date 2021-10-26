@@ -11,7 +11,7 @@
 
 // huge static buffer so memory adress stays consistent between runs with same seed
 // helps greatly with watchpoints
-char buf[1000000];
+/* char buf[1000000]; */
 
 int main(int argc, char* argv[]) {
     int seed;
@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     char* ones[BLOCK_MAX];
     int sizes[ARR_SIZE];
     memset(ones, '1', BLOCK_MAX * sizeof(ones[0]));
+    void* buf = malloc(1000000);
     meminit(buf, 1000000);
     for (int r = 0; r < RUN_COUNT; r++) {
         for (int i = 0; i < ARR_SIZE; i++) {
@@ -51,5 +52,6 @@ int main(int argc, char* argv[]) {
         }
     }
     memdone();
+    free(buf);
     return 0;
 }
