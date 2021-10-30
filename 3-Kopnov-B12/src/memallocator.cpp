@@ -24,13 +24,20 @@ void* findPosition(int size) {
     // remember old value of cur
     void* begin = cur;
     void* next = *blockNext(cur);
+    if (!next) {
+        cur = poolMemory + BLOCK_SIZE - sizeof(int);
+        return NULL;
+    }
     // go for one cycle
     while (next != begin) {
         if (*blockSize(next) >= size) {
             return next;
         }
         cur = next;
-        next = *blockNext(next);
+        if (!(next = *blockNext(next))) {
+            cur = poolMemory + BLOCK_SIZE - sizeof(int);
+            return NULL;
+        }
     }
     // check old cur
     if (*blockSize(begin) >= size) {
