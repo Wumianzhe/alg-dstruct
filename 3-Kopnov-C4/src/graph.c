@@ -52,24 +52,23 @@ int breadthFirstSearch(graph_t* graph, FILE* out) {
         free(flags);
         return 0;
     }
-    for (int i = 0; i < graph->size; i++) {
-        printf("%d: ", i);
-        queuePrint(graph->links[i]);
-    }
     int cur = 0;
+    flags[0] = 1;
     do {
-        flags[cur] = 1;
-        fprintf(out, "%d ", cur);
+        fprintf(out, "%d", cur);
         int size = graph->links[cur]->size;
         for (int i = 0; i < size; i++) {
             int n = dequeue(graph->links[cur]);
             if (!flags[n]) {
+                flags[n] = 1;
                 enqueue(queue, n);
             }
         }
+        if (queue->size > 0) {
+            fprintf(out, " ");
+        }
         // empty queue returns 0 when attempting to dequeue
     } while ((cur = dequeue(queue)));
-    fprintf(out, "\n");
     free(flags);
     queueDelete(queue);
     return 1;
