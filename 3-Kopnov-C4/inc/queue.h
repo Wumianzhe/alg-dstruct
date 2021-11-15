@@ -1,6 +1,10 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct node {
     struct node* pNext;
     int data;
@@ -18,5 +22,9 @@ node_t* nodeCreate(int n);
 queue_t* queueCreate();
 void queueDelete(queue_t* queue);
 void queuePrint(const queue_t* queue);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
