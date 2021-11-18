@@ -12,9 +12,8 @@ typedef struct {
     queue_t** links; // array of any lists can be used and queues are already defined
 } graph_t;
 
-graph_t* graphCreate(int size);
 void graphDelete(graph_t* graph);
-void graphRead(graph_t* graph, FILE* in);
+graph_t* graphRead(FILE* in);
 int breadthFirstSearch(graph_t* graph, FILE* out);
 
 #ifdef __cplusplus

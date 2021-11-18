@@ -14,9 +14,9 @@ using namespace std;
 
 /*
  * load test results (cmake build type release):
- * Time:
- *
- * RAM:
+ * Time: 2.992s to generate graph file
+ *       31.01s to read and walk around the graph
+ * RAM:  up to 1.344 GiB
  */
 
 const char* filename = "loadTestGraph";
@@ -30,6 +30,7 @@ TEST(loadTest, graphGeneration) {
         printf("Error while opening file\n");
         FAIL();
     }
+    fprintf(graphFile, "%d\n", verticesCount);
     for (int i = 0; i < verticesCount; i++) {
         for (int neighbour = i + rand() % (maxNeighbourDelta - 1) + 1; neighbour < verticesCount;
              neighbour += rand() % (maxNeighbourDelta - 1) + 1) {
@@ -43,16 +44,20 @@ TEST(loadTest, graphReadAndBFS) {
     const char* filenameOut = "/dev/null";
     FILE* graphFile = fopen(filename, "r");
     if (!graphFile) {
-        printf("Error while opening file\n");
+        perror("Error while opening file");
         FAIL();
     }
-    graph_t* graph = graphCreate(verticesCount);
-    graphRead(graph, graphFile);
+    graph_t* graph = graphRead(graphFile);
     fclose(graphFile);
+    if (!graph) {
+        perror("Error during graph creation");
+        FAIL();
+    }
 
     FILE* outFile = fopen(filenameOut, "w");
     if (!outFile) {
-        printf("Error while opening file\n");
+        graphDelete(graph);
+        perror("Error while opening file");
         FAIL();
     }
     breadthFirstSearch(graph, outFile);

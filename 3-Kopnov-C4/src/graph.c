@@ -1,28 +1,9 @@
 #include "graph.h"
 #include "queue.h"
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-graph_t* graphCreate(int size) {
-    graph_t* graph = malloc(sizeof(graph_t));
-    if (graph) {
-        graph->size = size;
-        graph->links = malloc(size * sizeof(queue_t));
-        if (!graph->links) {
-            free(graph);
-            return NULL;
-        }
-        for (int i = 0; i < size; i++) {
-            graph->links[i] = queueCreate();
-            if (!graph->links[i]) {
-                free(graph);
-                return NULL;
-            }
-        }
-    }
-    return graph;
-}
 
 void graphDelete(graph_t* graph) {
     if (graph) {
@@ -34,12 +15,38 @@ void graphDelete(graph_t* graph) {
     }
 }
 
-void graphRead(graph_t* graph, FILE* in) {
+graph_t* graphRead(FILE* in) {
     int first, second;
-    while (fscanf(in, "%d %d\n", &first, &second) > 0) {
-        enqueue(graph->links[first], second);
-        enqueue(graph->links[second], first);
+    int size;
+    fscanf(in, "%d\n", &size);
+    graph_t* graph = malloc(sizeof(graph_t));
+    if (graph) {
+        graph->size = size;
+        graph->links = malloc(size * sizeof(queue_t));
+        if (!graph->links) {
+            free(graph);
+            return NULL;
+        }
+        for (int i = 0; i < size; i++) {
+            graph->links[i] = queueCreate();
+            if (!graph->links[i]) {
+                for (int k = 0; k < i; k++) {
+                    queueDelete(graph->links[k]);
+                }
+                free(graph);
+                return NULL;
+            }
+        }
+        while (fscanf(in, "%d %d\n", &first, &second) > 0) {
+            enqueue(graph->links[first], second);
+            enqueue(graph->links[second], first);
+            if (errno) {
+                graphDelete(graph);
+                return NULL;
+            }
+        }
     }
+    return graph;
 }
 
 int breadthFirstSearch(graph_t* graph, FILE* out) {
