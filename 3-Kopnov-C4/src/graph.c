@@ -71,6 +71,7 @@ int breadthFirstSearch(graph_t* graph, FILE* out) {
                 enqueue(queue, n);
                 if (errno) {
                     queueDelete(queue);
+                    free(flags);
                     return 0;
                 }
             }
