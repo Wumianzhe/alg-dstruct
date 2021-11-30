@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 void graphDelete(graph_t* graph) {
     if (graph) {
@@ -49,6 +50,7 @@ graph_t* graphRead(FILE* in) {
     return graph;
 }
 
+// don't know how to change direction of path (it's inverted compared with recursive solution on sorted input)
 int hamiltonPath(graph_t* graph, FILE* out) {
     bool* flags = calloc(graph->size, sizeof(bool));
     if (!flags) {
@@ -64,26 +66,61 @@ int hamiltonPath(graph_t* graph, FILE* out) {
         free(flags);
         return 0;
     }
+    bool ans = 0;
 
-    int cur, depth;
     for (int i = 0; i < graph->size; i++) {
-        cur = i;
-        depth = 0;
-        do {
+        // i did not want to change list to store two ints or use bit shifting
+        union {
+            int num;
+            struct {
+                uint16_t node;
+                uint16_t depth;
+            } data;
+        } val;
+        // zero out flags at beginning of call
+        memset(flags, 0, graph->size * sizeof(bool));
+        // first node
+        val.data.node = i;
+        val.data.depth = 0;
+        push(stack, val.num);
+
+        while (stack->size > 0) {
+            val.num = pop(stack);
+            int cur = val.data.node, depth = val.data.depth;
             // unable to think of a way to unwind stack so values will be stored immediately
             res[depth] = cur;
-            int size = graph->links[i]->size;
-            for (int i = 0; i < size; i++) {
-                // i did not want to change list to store two ints or use bit shifting
-                union {
-                    int num;
-                    struct {
-                        uint16_t node;
-                        uint16_t depth;
-                    } data;
-                } val;
+            flags[cur] = 1;
+
+            if (depth == graph->size - 1) {
+                ans = 1;
+                break;
             }
-        } while (stack->size > 0);
+
+            // push all unvisited nodes with depth+1
+            val.data.depth = depth + 1;
+            int size = graph->links[cur]->size;
+            node_t* node = graph->links[cur]->pHead;
+            for (int i = 0; i < size; i++) {
+                val.data.node = node->data;
+                if (!flags[val.data.node]) {
+                    push(stack, val.num);
+                }
+                node = node->pNext;
+            }
+        }
+        if (ans) {
+            break;
+        }
+    }
+    if (ans) {
+        for (int i = 0; i < graph->size - 1; i++) {
+            fprintf(out, "%d ", res[i] + 1);
+        }
+        fprintf(out, "%d\n", res[graph->size - 1] + 1);
+    } else {
+        free(flags);
+        listDelete(stack);
+        return 0;
     }
     free(flags);
     listDelete(stack);

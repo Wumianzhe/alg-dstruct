@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
         perror("Input error");
         return 1;
     }
-    if (!hamiltonRecursiveWrap(graph, stdout)) {
+    if (!hamiltonPath(graph, stdout)) {
         printf("0");
     }
     return 0;
