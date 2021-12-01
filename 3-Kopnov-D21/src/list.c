@@ -18,7 +18,7 @@ void insertLast(list_t* list, int n) {
     }
     list->size++;
 }
-void push(stack_t* stack, int n) {
+void push(myStack_t* stack, int n) {
     node_t* node = nodeCreate(n);
     if (!node) {
         perror("Insertion malloc error");
@@ -31,7 +31,7 @@ void push(stack_t* stack, int n) {
     }
     stack->size++;
 }
-int pop(stack_t* stack) {
+int pop(myStack_t* stack) {
     if (stack->size > 0) {
         node_t* node = stack->pHead;
         int val = node->data;

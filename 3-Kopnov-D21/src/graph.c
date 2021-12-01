@@ -52,6 +52,10 @@ graph_t* graphRead(FILE* in) {
 
 // don't know how to change direction of path (it's inverted compared with recursive solution on sorted input)
 int hamiltonPath(graph_t* graph, FILE* out) {
+    if (graph->size > (1 << 16) - 1) {
+        errno = EINVAL;
+        return 0;
+    }
     bool* flags = calloc(graph->size, sizeof(bool));
     if (!flags) {
         return 0;
@@ -61,9 +65,10 @@ int hamiltonPath(graph_t* graph, FILE* out) {
         free(flags);
         return 0;
     }
-    stack_t* stack = listCreate();
+    myStack_t* stack = listCreate();
     if (!stack) {
         free(flags);
+        free(res);
         return 0;
     }
     bool ans = 0;
@@ -83,6 +88,13 @@ int hamiltonPath(graph_t* graph, FILE* out) {
         val.data.node = i;
         val.data.depth = 0;
         push(stack, val.num);
+
+        if (errno) {
+            free(flags);
+            free(res);
+            listDelete(stack);
+            return 0;
+        }
 
         while (stack->size > 0) {
             val.num = pop(stack);
@@ -104,6 +116,13 @@ int hamiltonPath(graph_t* graph, FILE* out) {
                 val.data.node = node->data;
                 if (!flags[val.data.node]) {
                     push(stack, val.num);
+
+                    if (errno) {
+                        free(flags);
+                        free(res);
+                        listDelete(stack);
+                        return 0;
+                    }
                 }
                 node = node->pNext;
             }
@@ -119,10 +138,12 @@ int hamiltonPath(graph_t* graph, FILE* out) {
         fprintf(out, "%d\n", res[graph->size - 1] + 1);
     } else {
         free(flags);
+        free(res);
         listDelete(stack);
         return 0;
     }
     free(flags);
+    free(res);
     listDelete(stack);
     return 1;
 }
