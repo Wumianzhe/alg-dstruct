@@ -19,6 +19,7 @@ void testPath(const char* filenameIn, const char* filenameOut, const char* filen
     FILE* out = fopen(filenameOut, "w");
     if (!out) {
         perror("Input error");
+        graphDelete(graph);
         FAIL();
     }
     if (!hamiltonPath(graph, out)) {
@@ -55,7 +56,8 @@ void testPath(const char* filenameIn, const char* filenameOut, const char* filen
     fseek(out, 0, SEEK_SET);
     fseek(expected, 0, SEEK_SET);
 
-    // since size equality means equal number count (ither 1 or all) it's possible to compare one by one
+    // since format is set, size equality means equal number count (either 1 or all),
+    // so it's possible to compare one by one
     while ((fscanf(out, "%d ", &val) > 0) && (fscanf(expected, "%d ", &exp) > 0)) {
         if (val != exp) {
             fclose(out);
@@ -72,3 +74,5 @@ TEST(func, noPath) { testPath("test/inputs/noPath", "out.txt", "test/expect/noPa
 TEST(func, pathFromOne) { testPath("test/inputs/yesPath", "out.txt", "test/expect/yesPath"); }
 
 TEST(func, pathFromN) { testPath("test/inputs/pathFromN", "out.txt", "test/expect/pathFromN"); }
+
+TEST(func, AcyclicPath) { testPath("test/inputs/acyclic", "out.txt", "test/expect/acyclic"); }

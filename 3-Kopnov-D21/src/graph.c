@@ -34,6 +34,7 @@ graph_t* graphRead(FILE* in) {
                 for (int k = 0; k < i; k++) {
                     listDelete(graph->links[k]);
                 }
+                free(graph->links);
                 free(graph);
                 return NULL;
             }
