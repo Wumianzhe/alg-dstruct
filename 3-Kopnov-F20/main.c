@@ -3,6 +3,8 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {
-    wrapMain(stdin, stdout, 4);
+    int k;
+    scanf("%d\n", &k);
+    wrapMain(stdin, stdout, k);
     return 0;
 }

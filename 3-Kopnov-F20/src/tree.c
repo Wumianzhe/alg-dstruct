@@ -66,7 +66,8 @@ tree_t* treeCreate(int key) {
 
 tree_t* treeRead(FILE* in) {
     int key;
-    // space matches any whitespace including newline (all of it, so it needs non-whitespace character to finish)
+    // space matches any whitespace including newline (all of it, so it needs non-whitespace character to return)
+    // when reading stdin use either duplicate or EOF keybind (C-d) on newline to stop reading
     fscanf(in, "%d ", &key);
     tree_t* tree = treeCreate(key);
     if (tree) {
@@ -132,14 +133,19 @@ void treePrintLesserFancy(tree_t* tree, int key, int depth) {
 }
 
 int wrapMain(FILE* in, FILE* out, int k) {
-    tree_t* tree = treeRead(stdin);
+    tree_t* tree = treeRead(in);
     tree_t* sub = kMin(tree, k);
     if (sub) {
         if (sub->key % 2 == 0) {
-            treePrintLesser(tree, sub->key, out);
+            if (out == stdout) {
+                treePrintLesserFancy(tree, sub->key, 0);
+            } else {
+                treePrintLesser(tree, sub->key, out);
+            }
         }
     } else {
         fprintf(out, "Tree is too small\n");
     }
     treeDelete(tree);
+    return 0;
 }

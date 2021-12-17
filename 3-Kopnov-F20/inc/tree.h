@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct node {
     struct node* left;
     struct node* right;
@@ -20,5 +24,9 @@ tree_t* kMin(tree_t* tree, int k);
 void treePrint(tree_t* tree);
 void treePrintLesser(tree_t* tree, int key, FILE* out);
 void treePrintLesserFancy(tree_t* tree, int key, int depth);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // TREE_H_
