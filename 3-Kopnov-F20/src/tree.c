@@ -112,7 +112,7 @@ void treePrint(tree_t* tree) {
 void treePrintLesser(tree_t* tree, int key, FILE* out) {
     if (tree) {
         treePrintLesser(tree->left, key, out);
-        if (key >= tree->key) {
+        if (key > tree->key) {
             fprintf(out, "%d ", tree->key);
             treePrintLesser(tree->right, key, out);
         }
@@ -122,7 +122,7 @@ void treePrintLesser(tree_t* tree, int key, FILE* out) {
 void treePrintLesserFancy(tree_t* tree, int key, int depth) {
     if (tree) {
         treePrintLesserFancy(tree->left, key, depth + 1);
-        if (key >= tree->key) {
+        if (key > tree->key) {
             for (int i = 0; i < 3 * depth; i++) {
                 putchar(' ');
             }
