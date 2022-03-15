@@ -1,6 +1,7 @@
 #include "treap.h"
 #include <stdlib.h>
 
+// all treaps are in UpperCamelCase, other objects in lowerCamelCase
 treap_t* treapMerge(treap_t* L, treap_t* R) {
     if (!L)
         return R;
@@ -21,14 +22,14 @@ void treapSplit(treap_t* T, int key, treap_t** L, treap_t** R) {
         *R = NULL;
         return;
     }
-    treap_t* tmp = NULL;
+    treap_t* Tmp = NULL;
     if (T->key <= key) {
-        treapSplit(T->pRight, key, &tmp, R);
-        T->pRight = tmp;
+        treapSplit(T->pRight, key, &Tmp, R);
+        T->pRight = Tmp;
         *L = T;
     } else {
-        treapSplit(T->pLeft, key, L, &tmp);
-        T->pLeft = tmp;
+        treapSplit(T->pLeft, key, L, &Tmp);
+        T->pLeft = Tmp;
         *R = T;
     }
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// all treaps are in UpperCamelCase, other objects in lowerCamelCase
 typedef struct node {
     int key;
     int p;
@@ -16,7 +17,6 @@ void treapSplit(treap_t* T, int key, treap_t** L, treap_t** R);
 treap_t* treapInsert(treap_t* T, int key);
 treap_t* treapRemove(treap_t* T, int key);
 node_t* treapFind(treap_t* T, int key);
-
 void mainLoop(treap_t** T);
 
 int main(int argc, char* argv[]) {
@@ -58,12 +58,10 @@ treap_t* treapMerge(treap_t* L, treap_t* R) {
     if (!R)
         return L;
     if (L->p > R->p) {
-        treap_t* newR = treapMerge(L->pRight, R);
-        L->pRight = newR;
+        L->pRight = treapMerge(L->pRight, R);
         return L;
     } else {
-        treap_t* newL = treapMerge(L, R->pLeft);
-        R->pLeft = newL;
+        R->pLeft = treapMerge(L, R->pLeft);
         return R;
     }
 }
@@ -74,14 +72,14 @@ void treapSplit(treap_t* T, int key, treap_t** L, treap_t** R) {
         *R = NULL;
         return;
     }
-    treap_t* tmp = NULL;
+    treap_t* Tmp = NULL;
     if (T->key <= key) {
-        treapSplit(T->pRight, key, &tmp, R);
-        T->pRight = tmp;
+        treapSplit(T->pRight, key, &Tmp, R);
+        T->pRight = Tmp;
         *L = T;
     } else {
-        treapSplit(T->pLeft, key, L, &tmp);
-        T->pLeft = tmp;
+        treapSplit(T->pLeft, key, L, &Tmp);
+        T->pLeft = Tmp;
         *R = T;
     }
 }
