@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-// all treaps are in UpperCamelCase, other objects in lowerCamelCase
 typedef struct node {
     int key;
     int p;
@@ -17,6 +13,10 @@ void treapSplit(treap_t* T, int key, treap_t** L, treap_t** R);
 treap_t* treapInsert(treap_t* T, int key);
 treap_t* treapRemove(treap_t* T, int key);
 node_t* treapFind(treap_t* T, int key);
+
+#include <stdio.h>
+#include <stdlib.h>
+
 void mainLoop(treap_t** T);
 
 int main(int argc, char* argv[]) {
@@ -52,11 +52,14 @@ void mainLoop(treap_t** pT) {
     }
 }
 
+// all treaps are in UpperCamelCase, other objects in lowerCamelCase
 treap_t* treapMerge(treap_t* L, treap_t* R) {
-    if (!L)
+    if (!L) {
         return R;
-    if (!R)
+    }
+    if (!R) {
         return L;
+    }
     if (L->p > R->p) {
         L->pRight = treapMerge(L->pRight, R);
         return L;

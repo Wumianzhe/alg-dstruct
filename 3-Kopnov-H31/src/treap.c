@@ -3,10 +3,12 @@
 
 // all treaps are in UpperCamelCase, other objects in lowerCamelCase
 treap_t* treapMerge(treap_t* L, treap_t* R) {
-    if (!L)
+    if (!L) {
         return R;
-    if (!R)
+    }
+    if (!R) {
         return L;
+    }
     if (L->p > R->p) {
         L->pRight = treapMerge(L->pRight, R);
         return L;
