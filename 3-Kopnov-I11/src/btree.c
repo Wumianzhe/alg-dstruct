@@ -145,18 +145,20 @@ tree_t* insertAbove(tree_t* caller, int key) {
             node->keys[1] = key;
             node->ptrs[2] = caller->ptrs[2];
             node->ptrs[2]->parent = node;
+            caller->ptrs[2] = NULL;
         } else {
             node->keys[1] = node->keys[0];
-            node->ptrs[2] = node->ptrs[0];
+            node->ptrs[2] = node->ptrs[1];
 
             node->keys[0] = key;
             node->ptrs[1] = caller->ptrs[2];
             node->ptrs[1]->parent = node;
+            caller->ptrs[2] = NULL;
         }
         node->full = true;
     } else {
         // HACK I'm abusing now-unused second pointer in internal node to point to new child
-        // better way is another argument, but by the time i'm writing this, fixing is not worth it
+        // cleaner way is another argument, but by now fixing is not worth it
         if (key < node->keys[0]) {
             tree_t* next = nodeCreate(node, node->keys[1], node->ptrs[1]);
             if (!next) {
@@ -176,22 +178,25 @@ tree_t* insertAbove(tree_t* caller, int key) {
             int old_key = node->keys[0];
             node->keys[0] = key;
             node->ptrs[1] = caller->ptrs[2];
+            caller->ptrs[2] = NULL;
             // propagate
             return insertAbove(node, old_key);
         } else if (key < node->keys[1]) {
             tree_t* next = nodeCreate(node, node->keys[1], caller->ptrs[2]);
-            node->full = false;
             if (!next) {
                 treeDelete(caller->ptrs[2]);
                 treeDelete(root(node));
                 return NULL;
             }
+            node->full = false;
+            node->keys[1] = 0;
+
             // move ptrs[2] where it belongs and reparent
             next->ptrs[1] = next->ptrs[2];
-            next->ptrs[2] = NULL;
             next->ptrs[1]->parent = next;
+            next->ptrs[2] = NULL;
+            caller->ptrs[2] = NULL;
 
-            node->keys[1] = 0;
             // propagate
             return insertAbove(node, key);
         } else {
@@ -202,9 +207,13 @@ tree_t* insertAbove(tree_t* caller, int key) {
                 return NULL;
             }
             node->full = false;
+            int old_key = node->keys[1];
+            node->keys[1] = 0;
             next->ptrs[1] = caller->ptrs[2];
+            next->ptrs[2] = NULL;
             next->ptrs[1]->parent = next;
-            return insertAbove(node, node->keys[1]);
+            caller->ptrs[2] = NULL;
+            return insertAbove(node, old_key);
         }
     }
     // return the root
@@ -327,12 +336,14 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
             cur = !cur->full ? cur->ptrs[1] : cur->ptrs[2];
         }
         lmax = !cur->full ? cur->keys[0] : cur->keys[1];
-        // if one of pointers is part of bigger tree
+        // if one of pointers is part of bigger tree (only one can be)
         if (lParent) {
             right->parent = lParent;
             if (!lParent->full) {
                 lParent->keys[1] = lmax;
                 lParent->ptrs[2] = right;
+                lParent->full = true;
+                return root(lParent);
             } else {
                 tree_t* next = nodeCreate(lParent, lmax, left);
                 next->ptrs[1] = right;
@@ -348,6 +359,8 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
 
                 rParent->keys[0] = lmax;
                 rParent->ptrs[0] = left;
+                rParent->full = true;
+                return root(rParent);
             } else {
                 tree_t* next = nodeCreate(rParent, rParent->keys[1], rParent->ptrs[1]);
                 rParent->full = false;
@@ -374,7 +387,7 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
     if (left->height < right->height) {
         return treeMerge(left, right->ptrs[0]);
     } else {
-        return treeMerge(left->full ? left->ptrs[1] : left->ptrs[2], right);
+        return treeMerge(!left->full ? left->ptrs[1] : left->ptrs[2], right);
     }
 }
 
@@ -461,6 +474,9 @@ tree_t* treeRemove(tree_t* tree, int key) {
         return tree;
     }
     tree_t* m = treeSplit(tree, key, &left, &right);
+    printf("\n");
+    treePrint(right, 0);
+    printf("\n");
     free(m);
     return treeMerge(left, right);
 }
