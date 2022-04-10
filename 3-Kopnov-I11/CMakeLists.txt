@@ -9,6 +9,8 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
 
 add_executable(main main.c)
+add_executable(submission submission.c)
 include_directories("${PROJECT_SOURCE_DIR}/inc")
 add_subdirectory(src)
 target_link_libraries(main btree)
+target_link_libraries(submission btree)

@@ -1,27 +1,71 @@
-#include "btree.h"
-#ifndef NDEBUG
-#if (BAD_MALLOC == 1)
-#define _GNU_SOURCE
-#include <dlfcn.h>
-#endif
-#endif
+#include <stdbool.h>
+
+typedef struct node {
+    // for leafs first two are pointers to value (cast as needed) and third is for in-order traversal
+    struct node* ptrs[3];
+    int keys[2];
+    struct node* parent;
+    int height; // leafs have height of 0
+    bool full;
+} tree_t;
+
+#define BAD_MALLOC 0
+extern int badmallocsAllowed;
+
+tree_t* nodeCreate(tree_t* sibling, int key, void* pValue);
+void treeDelete(tree_t* tree);
+tree_t* treeInsert(tree_t* tree, int key, void* pValue);
+tree_t* treeRemove(tree_t* tree, int key);
+// should return value pointer, but it's not a hard rewrite and
+// value pointers are going to be NULL in tests, so i need to differentiate
+bool treeFind(tree_t* tree, int key);
+void treePrint(tree_t* tree, int offset);
+void sequentialPrint(tree_t* tree);
+
+// if key is in tree, leaf containing it (and only it) is returned separately. Can be merged back, but is useful for
+// removal
+tree_t* treeSplit(tree_t* tree, int key, tree_t** left, tree_t** right);
+tree_t* treeMerge(tree_t* left, tree_t* right);
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef NDEBUG
-#if (BAD_MALLOC == 1)
-void* malloc(size_t size) {
-    static void* (*sysmalloc)(size_t) = NULL;
-    if (!sysmalloc) {
-        sysmalloc = dlsym(RTLD_NEXT, "malloc");
-    }
-    if (!(rand() % 10)) {
-        return NULL;
-    }
-    return sysmalloc(size);
+void mainLoop(tree_t** pTree);
+
+int main(int argc, char* argv[]) {
+    tree_t* tree = NULL;
+    mainLoop(&tree);
+    treeDelete(tree);
+    return 0;
 }
-#endif
-#endif
+
+void mainLoop(tree_t** pTree) {
+    tree_t* tree = *pTree;
+    char action;
+    int key;
+    while (scanf("%c %d\n", &action, &key) > 0) {
+        switch (action) {
+        case 'a': {
+            tree = treeInsert(tree, key, NULL);
+            break;
+        }
+        case 'r': {
+            tree = treeRemove(tree, key);
+            break;
+        }
+        case 'f': {
+            printf("%s\n", treeFind(tree, key) ? "yes" : "no");
+            break;
+        }
+        default: {
+            *pTree = tree;
+            return;
+        }
+        }
+    }
+    *pTree = tree;
+    return;
+}
 
 int badmallocsAllowed = 2;
 
