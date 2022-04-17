@@ -1,7 +1,7 @@
 #ifndef BTREE_H_
 #define BTREE_H_
 
-#define BAD_MALLOC 0
+#define BAD_MALLOC 1
 extern int badmallocsAllowed;
 
 #include <stdbool.h>

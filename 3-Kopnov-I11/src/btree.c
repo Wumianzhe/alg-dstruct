@@ -354,6 +354,11 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
             } else {
                 // left is third pointer of lParent
                 tree_t* next = nodeCreate(lParent, lmax, left);
+                if (!next) {
+                    treeDelete(root(left));
+                    treeDelete(right);
+                    return NULL;
+                }
                 next->ptrs[1] = right;
                 right->parent = next;
                 next->ptrs[2] = NULL;
@@ -373,6 +378,11 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
                 return root(rParent);
             } else {
                 tree_t* next = nodeCreate(rParent, rParent->keys[1], rParent->ptrs[1]);
+                if (!next) {
+                    treeDelete(root(right));
+                    treeDelete(left);
+                    return NULL;
+                }
                 rParent->full = false;
                 next->ptrs[1] = next->ptrs[2];
                 next->ptrs[1]->parent = next;
@@ -386,6 +396,8 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
         } else {
             tree_t* tree = nodeCreate(NULL, lmax, left);
             if (!tree) {
+                treeDelete(left);
+                treeDelete(right);
                 return NULL;
             }
             tree->height = left->height + 1;
