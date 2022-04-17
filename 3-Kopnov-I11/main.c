@@ -36,5 +36,4 @@ void mainLoop(tree_t** pTree) {
         }
     }
     *pTree = tree;
-    return;
 }

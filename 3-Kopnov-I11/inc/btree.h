@@ -1,5 +1,9 @@
 #ifndef BTREE_H_
 #define BTREE_H_
+
+#define BAD_MALLOC 0
+extern int badmallocsAllowed;
+
 #include <stdbool.h>
 
 typedef struct node {
@@ -10,9 +14,6 @@ typedef struct node {
     int height; // leafs have height of 0
     bool full;
 } tree_t;
-
-#define BAD_MALLOC 0
-extern int badmallocsAllowed;
 
 tree_t* nodeCreate(tree_t* sibling, int key, void* pValue);
 void treeDelete(tree_t* tree);

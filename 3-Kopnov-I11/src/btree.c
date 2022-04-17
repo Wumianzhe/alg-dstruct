@@ -264,7 +264,10 @@ void treePrint(tree_t* tree, int offset) {
     }
     if (!tree->height) {
         if (offset > 0) {
-            printf("\033[%dC->", offset - 2);
+            for (int i = 0; i < offset - 2; i++) {
+                printf(" ");
+            }
+            printf("->");
         }
         printf("[%2d", tree->keys[0]);
         if (tree->full) {
@@ -275,21 +278,25 @@ void treePrint(tree_t* tree, int offset) {
         treePrint(tree->ptrs[0], offset + 4);
         if (!tree->full) {
             if (offset > 0) {
-                printf("\033[%dC->", offset - 2);
+                for (int i = 0; i < offset - 2; i++) {
+                    printf(" ");
+                }
+                printf("->");
             }
             printf("%2d\n", tree->keys[0]);
             treePrint(tree->ptrs[1], offset + 4);
         } else {
-            if (offset > 0) {
-                printf("\033[%dC", offset);
+            for (int i = 0; i < offset; i++) {
+                printf(" ");
             }
             printf("%2d\n", tree->keys[0]);
-            if (offset > 0) {
-                printf("\033[%dC->\r", offset - 2);
-            }
+            /* for (int i = 0; i < offset - 2; i++) { */
+            /*     printf(" "); */
+            /* } */
+            /* printf("->\r"); */
             treePrint(tree->ptrs[1], offset + 4);
-            if (offset > 0) {
-                printf("\033[%dC", offset);
+            for (int i = 0; i < offset; i++) {
+                printf(" ");
             }
             printf("%2d\n", tree->keys[1]);
             treePrint(tree->ptrs[2], offset + 4);
@@ -333,9 +340,9 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
         int lmax;
         tree_t* cur = left;
         while (cur->height) {
-            cur = !cur->full ? cur->ptrs[1] : cur->ptrs[2];
+            cur = (!cur->full) ? cur->ptrs[1] : cur->ptrs[2];
         }
-        lmax = !cur->full ? cur->keys[0] : cur->keys[1];
+        lmax = (!cur->full) ? cur->keys[0] : cur->keys[1];
         // if one of pointers is part of bigger tree (only one can be)
         if (lParent) {
             right->parent = lParent;
@@ -345,8 +352,11 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
                 lParent->full = true;
                 return root(lParent);
             } else {
+                // left is third pointer of lParent
                 tree_t* next = nodeCreate(lParent, lmax, left);
                 next->ptrs[1] = right;
+                right->parent = next;
+                next->ptrs[2] = NULL;
                 lParent->full = false;
                 return insertAbove(lParent, lParent->keys[1]);
             }
@@ -365,6 +375,7 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
                 tree_t* next = nodeCreate(rParent, rParent->keys[1], rParent->ptrs[1]);
                 rParent->full = false;
                 next->ptrs[1] = next->ptrs[2];
+                next->ptrs[1]->parent = next;
                 next->ptrs[2] = NULL;
                 int old_key = rParent->keys[0];
                 rParent->ptrs[1] = rParent->ptrs[0];
@@ -387,7 +398,7 @@ tree_t* treeMerge(tree_t* left, tree_t* right) {
     if (left->height < right->height) {
         return treeMerge(left, right->ptrs[0]);
     } else {
-        return treeMerge(!left->full ? left->ptrs[1] : left->ptrs[2], right);
+        return treeMerge((!left->full) ? left->ptrs[1] : left->ptrs[2], right);
     }
 }
 
