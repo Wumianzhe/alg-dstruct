@@ -29,6 +29,14 @@ void mainLoop(tree_t** pTree) {
             printf("%s\n", treeFind(tree, key) ? "yes" : "no");
             break;
         }
+        case 'p': {
+            treePrint(tree, 0);
+            break;
+        }
+        case 'l': {
+            sequentialPrint(tree);
+            break;
+        }
         default: {
             *pTree = tree;
             return;

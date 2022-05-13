@@ -134,7 +134,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
         }
         node->height = caller->height + 1;
         node->ptrs[1] = caller->ptrs[2];
-        caller->ptrs[2] = NULL;
 
         caller->parent = node;
         node->ptrs[1]->parent = node;
@@ -145,7 +144,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
             node->keys[1] = key;
             node->ptrs[2] = caller->ptrs[2];
             node->ptrs[2]->parent = node;
-            caller->ptrs[2] = NULL;
         } else {
             node->keys[1] = node->keys[0];
             node->ptrs[2] = node->ptrs[1];
@@ -153,7 +151,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
             node->keys[0] = key;
             node->ptrs[1] = caller->ptrs[2];
             node->ptrs[1]->parent = node;
-            caller->ptrs[2] = NULL;
         }
         node->full = true;
     } else {
@@ -178,7 +175,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
             int old_key = node->keys[0];
             node->keys[0] = key;
             node->ptrs[1] = caller->ptrs[2];
-            caller->ptrs[2] = NULL;
             // propagate
             return insertAbove(node, old_key);
         } else if (key < node->keys[1]) {
@@ -195,7 +191,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
             next->ptrs[1] = next->ptrs[2];
             next->ptrs[1]->parent = next;
             next->ptrs[2] = NULL;
-            caller->ptrs[2] = NULL;
 
             // propagate
             return insertAbove(node, key);
@@ -212,7 +207,6 @@ tree_t* insertAbove(tree_t* caller, int key) {
             next->ptrs[1] = caller->ptrs[2];
             next->ptrs[2] = NULL;
             next->ptrs[1]->parent = next;
-            caller->ptrs[2] = NULL;
             return insertAbove(node, old_key);
         }
     }
@@ -258,6 +252,26 @@ bool treeFind(tree_t* tree, int key) {
     return false;
 }
 
+// example:
+/*
+         ->[ 1,  2]
+     -> 2
+         ->[ 3,  4]
+ -> 4
+         ->[ 5,  6]
+     -> 6
+         ->[ 7,  8]
+8
+         ->[ 9, 10]
+     ->10
+         ->[11, 12]
+ ->12
+         ->[13, 14]
+       14
+         ->[15, 16]
+       16
+         ->[17, 18]
+*/
 void treePrint(tree_t* tree, int offset) {
     if (!tree) {
         return;
@@ -290,10 +304,6 @@ void treePrint(tree_t* tree, int offset) {
                 printf(" ");
             }
             printf("%2d\n", tree->keys[0]);
-            /* for (int i = 0; i < offset - 2; i++) { */
-            /*     printf(" "); */
-            /* } */
-            /* printf("->\r"); */
             treePrint(tree->ptrs[1], offset + 4);
             for (int i = 0; i < offset; i++) {
                 printf(" ");
@@ -328,6 +338,9 @@ void sequentialPrint(tree_t* tree) {
 }
 
 tree_t* treeMerge(tree_t* left, tree_t* right) {
+    // for correct merge all nodes in left tree should be less than all in right tree
+    // assuming valid trees as input, can be verified by comparing leftmost value of right tree and rightmost value of
+    // left tree
     if (!left) {
         return right;
     }
