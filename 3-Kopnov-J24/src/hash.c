@@ -47,7 +47,7 @@ void hashMapRemove(hashmap_t* map, const char* str) {
 }
 
 bool hashMapInsert(hashmap_t* map, const char* str) {
-    if (map->size == map->maxSize) {
+    if (map->size == map->maxSize || hashMapFind(map, str)) {
         return false;
     }
     int pos = h1(str, map->maxSize);

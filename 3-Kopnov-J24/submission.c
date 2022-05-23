@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 typedef enum { HASH_FREE, HASH_FULL, HASH_DELETED } status;
-#define HASH_SIZE_DEFAULT 500113 // greater of first pair of twin primes after 10000
+#define HASH_SIZE_DEFAULT 500113 // greater of first pair of twin primes after 500000
 
 typedef struct record {
     char* value;
@@ -25,7 +25,7 @@ void hashMapDelete(hashmap_t* map);
 
 #include <stdio.h>
 
-void mainLoop(hashmap_t** pTree);
+void mainLoop(hashmap_t** pMap);
 
 int main(int argc, char* argv[]) {
     hashmap_t* map = hashMapInit(HASH_SIZE_DEFAULT);
@@ -108,7 +108,7 @@ void hashMapRemove(hashmap_t* map, const char* str) {
 }
 
 bool hashMapInsert(hashmap_t* map, const char* str) {
-    if (map->size == map->maxSize) {
+    if (map->size == map->maxSize || hashMapFind(map, str)) {
         return false;
     }
     int pos = h1(str, map->maxSize);
