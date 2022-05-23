@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 typedef enum { HASH_FREE, HASH_FULL, HASH_DELETED } status;
-#define HASH_SIZE_DEFAULT 500113 // greater of first pair of twin primes after 500000
+#define HASH_SIZE_DEFAULT 4000039 // greater of first pair of twin primes after 500000
 
 typedef struct record {
     char* value;
