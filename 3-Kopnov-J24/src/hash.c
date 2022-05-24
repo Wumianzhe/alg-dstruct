@@ -19,14 +19,14 @@ hashmap_t* hashMapInit(int maxSize) {
             res->data[i].value = NULL;
             res->data[i].state = HASH_FREE;
         }
-        res->maxSize = maxSize;
+        res->capacity = maxSize;
         res->size = 0;
     }
     return res;
 }
 
 void hashMapDelete(hashmap_t* map) {
-    for (int i = 0; i < map->maxSize; i++) {
+    for (int i = 0; i < map->capacity; i++) {
         if (map->data[i].value) {
             free(map->data[i].value);
         }
@@ -35,27 +35,28 @@ void hashMapDelete(hashmap_t* map) {
     free(map);
 }
 
-bool hashMapFind(const hashmap_t* map, const char* str) { return findIndex(map, str) != map->maxSize; }
+bool hashMapFind(const hashmap_t* map, const char* str) { return findIndex(map, str) != map->capacity; }
 
 void hashMapRemove(hashmap_t* map, const char* str) {
     int index = findIndex(map, str);
-    if (index != map->maxSize) {
+    if (index != map->capacity) {
         map->data[index].state = HASH_DELETED;
         free(map->data[index].value);
         map->data[index].value = NULL;
+        map->size--;
     }
 }
 
 bool hashMapInsert(hashmap_t* map, const char* str) {
-    if (map->size == map->maxSize || hashMapFind(map, str)) {
+    if (map->size == map->capacity || hashMapFind(map, str)) {
         return false;
     }
-    int pos = h1(str, map->maxSize);
-    int step = h2(str, map->maxSize);
+    int pos = h1(str, map->capacity);
+    int step = h2(str, map->capacity);
     int r = 0;
     while (map->data[pos].state == HASH_FULL) {
         r++;
-        pos = (pos + step) % map->maxSize;
+        pos = (pos + step) % map->capacity;
         if (r > 2) {
             if (insertInR(map, str, r)) {
                 return true;
@@ -74,13 +75,13 @@ bool hashMapInsert(hashmap_t* map, const char* str) {
 }
 
 bool insertInR(hashmap_t* map, const char* str, int r) {
-    int pos = h1(str, map->maxSize);
-    int step = h2(str, map->maxSize);
+    int pos = h1(str, map->capacity);
+    int step = h2(str, map->capacity);
     for (int i = 0; i < r; i++) {
-        int posI = (pos + i * step) % map->maxSize;
-        int c = h2(map->data[posI].value, map->maxSize);
+        int posI = (pos + i * step) % map->capacity;
+        int c = h2(map->data[posI].value, map->capacity);
         int k = r - i;
-        int posIK = (posI + k * c) % map->maxSize;
+        int posIK = (posI + k * c) % map->capacity;
         if (map->data[posIK].state != HASH_FULL) {
             map->data[posIK] = map->data[posI];
             char* copy = malloc((strlen(str) + 1) * sizeof(char));
@@ -118,17 +119,17 @@ int h2(const char* str, int maxSize) {
 }
 
 int findIndex(const hashmap_t* map, const char* str) {
-    int pos = h1(str, map->maxSize);
-    int step = h2(str, map->maxSize);
+    int pos = h1(str, map->capacity);
+    int step = h2(str, map->capacity);
     const int initPos = pos;
     if (map->data[pos].state == HASH_FREE) {
-        return map->maxSize;
+        return map->capacity;
     }
     // while
     while (map->data[pos].state != HASH_FREE && (!map->data[pos].value || strcmp(map->data[pos].value, str))) {
-        pos = (pos + step) % map->maxSize;
+        pos = (pos + step) % map->capacity;
         if (pos == initPos || map->data[pos].state == HASH_FREE) {
-            return map->maxSize;
+            return map->capacity;
         }
     }
     return pos;

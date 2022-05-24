@@ -15,7 +15,7 @@ typedef struct record {
 typedef struct {
     record_t* data;
     int size; // somewhat useful stat
-    int maxSize;
+    int capacity;
 } hashmap_t;
 
 // used by pointer in most functions, so creation as pointer
