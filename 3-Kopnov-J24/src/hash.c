@@ -57,7 +57,7 @@ bool hashMapInsert(hashmap_t* map, const char* str) {
     while (map->data[pos].state == HASH_FULL) {
         r++;
         pos = (pos + step) % map->capacity;
-        if (r > 2) {
+        if (r >= 2) {
             if (insertInR(map, str, r)) {
                 return true;
             }
@@ -77,10 +77,10 @@ bool hashMapInsert(hashmap_t* map, const char* str) {
 bool insertInR(hashmap_t* map, const char* str, int r) {
     int pos = h1(str, map->capacity);
     int step = h2(str, map->capacity);
-    for (int i = 0; i < r; i++) {
+    for (int i = 0; i < r - 1; i++) {
         int posI = (pos + i * step) % map->capacity;
         int c = h2(map->data[posI].value, map->capacity);
-        int k = r - i;
+        int k = r - 1 - i;
         int posIK = (posI + k * c) % map->capacity;
         if (map->data[posIK].state != HASH_FULL) {
             map->data[posIK] = map->data[posI];

@@ -5,6 +5,10 @@ void mainLoop(hashmap_t** pMap);
 
 int main(int argc, char* argv[]) {
     hashmap_t* map = hashMapInit(HASH_SIZE_DEFAULT);
+    if (!map) {
+        perror("Initialisation failed");
+        return 1;
+    }
     mainLoop(&map);
     hashMapDelete(map);
     return 0;
